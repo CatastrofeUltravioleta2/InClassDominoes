@@ -2,18 +2,76 @@
 @inject NavigationManager navManager
 @using Lab12Logic
 
+<style>
+    h4 {
+        margin-top: 0px;
+    }
+
+    .column {
+        display: inline-block;
+        vertical-align: top;
+        min-width: 15%;
+        max-width: 33%;
+        border-width: 2px;
+        border-radius: 10px;
+        border-style: solid;
+        padding: 10px;
+    }
+</style>
+
 @if (me is null)
 {
-   <div>There is no player @PlayerName</div>
+    <div>There is no player @PlayerName</div>
 }
-else if(game.IsGameOver)
+else if (game.IsGameOver)
 {
-   <h3>Game Over</h3>
+    <h3>Game Over</h3>
+    @if (game.Player1.Tiles.Count == game.Player2.Tiles.Count)
+    {
+        <p>It's a tie!</p>
+    }
+    else if (game.Winner == other)
+    {
+        <p>You lose :-(</p>
+    }
+    else
+    {
+        <p>You win!</p>
+    }
+    <button @onclick="playAgain">Play Again</button>
 }
 else //we're playing
 {
-   <h3>Play for @me.Name</h3>    
-}   
+    <h3>Play for @me.Name</h3>
+    <div class="column">
+        <h4>My Tiles</h4>
+        @foreach (var tile in me.Tiles)
+        {
+            <p @onclick=@(()=>playTile(tile))>(@tile.Num1, @tile.Num2)</p>
+        }
+    </div>
+    <div class="column">
+        <h4>Game Board</h4>
+        @foreach (var tile in game.Board)
+        {
+            <p>(@tile.Num1, @tile.Num2)</p>
+        }
+    </div>
+    <div class="column">
+        @if (other is null)
+        {
+            <h4>Waiting for another player...</h4>
+        }
+        else
+        {
+            <h4>@other.Name's Tiles</h4>
+            foreach (var tile in other.Tiles)
+            {
+                <p>(X, X)</p>
+            }
+        }
+    </div>
+}
 
 @code
 {
@@ -24,6 +82,24 @@ else //we're playing
 
     [SupplyParameterFromQuery] //Note(1)
     public string PlayerName { get; set; }
+
+    protected override void OnInitialized()
+    {
+        game.GameStateChanged += handleGameStateChanged;
+        game.GameReset += () =>
+        {
+            navManager.NavigateTo("/");
+        };
+    }
+
+    void handleGameStateChanged()
+    {
+        if (other is null)
+        {
+            other = game.Player1 == me ? game.Player2 : game.Player1;
+        }
+        InvokeAsync(StateHasChanged);
+    }
 
     protected override void OnParametersSet() //Note(2)
     {
@@ -37,5 +113,20 @@ else //we're playing
         }
         other = game.Player1 == me ? game.Player2 : game.Player1;
         errors.Clear();
+    }
+    void playTile(Tile t)
+    {
+        try
+        {
+            game.PlayTile(me, t);
+        }
+        catch (InvalidMoveException)
+        {
+            errors.Add($"You cannot play {t} on {game.Board.Last()}");
+        }
+    }
+    void playAgain()
+    {
+        game.Reset();
     }
 }
