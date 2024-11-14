@@ -61,6 +61,31 @@ public class UnitTest1
         var tileToPlay = new Tile(1, testGame.Board.First().Num1);
         testGame.Invoking(_ => testGame.PlayTile(testGame.Player1, testGame.Player1.Tiles.Last())).Should().Throw<InvalidMoveException>();
     }
+    [Fact]
+    public void Player1Wins()
+    {
+        var game = new Game();
+        var player1 = new Player("P1", 7);
+        var player2 = new Player("P2", 7);
+        game.Join(player1);
+        game.Join(player2);
+
+        player1.Tiles.Clear();
+        player1.Tiles.Add(new Tile(1, 2));
+        player1.Tiles.Add(new Tile(2, 3));
+        player1.Tiles.Add(new Tile(3, 4));
+        var expectedBoardLength = 1 + player1.Tiles.Count;
+
+        while (player1.Tiles.Any())
+        {
+            game.PlayTile(player1, player1.Tiles.First());
+        }
+
+        game.Board.Count.Should().Be(expectedBoardLength);
+        game.IsPlayable.Should().BeFalse();
+        game.Winner.Should().Be(player1);
+        game.IsGameOver.Should().BeTrue();
+    }
 
 
 }
