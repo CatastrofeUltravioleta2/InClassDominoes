@@ -1,47 +1,26 @@
 ﻿@page "/"
+@inject NavigationManager navManager
+@using Lab12Logic
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-
-<div>
-    <ul>
-        @foreach (Game game in Lobby.Games)
-        {
-            <li>
-                <a href=@($"/game/{game.Name}")>
-                    @game.Name - Player = (@game.NumberOfPlayer)
-                </a>
-            </li>
-        }
-
-    </ul>
-    New Game Name: <input @bind=NameInput placeholder="Type New Name" type="text">
-    <button @onclick=CreateGame>Create Game</button>
-</div>
-
+@if (Game.Instance.Player2 is null)
+{
+    <input @bind=newPlayerName placeholder="Your Name" />
+    <button @onclick=joinGame>Join Game</button>
+}
+else
+{
+    <p>Sorry, looks like the game is full</p>
+    <p>@Game.Instance.Player1.Name is already playing @Game.Instance.Player2.Name</p>
+}
 
 @code
 {
-    string NameInput;
-
-    protected override void OnInitialized()
+    string newPlayerName;
+    private void joinGame()
     {
-        Lobby.GameListChanged += Refresh;
-    }
-    void CreateGame()
-    {
-        Game newGame = new Game();
-        newGame.Name = NameInput;
-        NameInput = "";
-        Lobby.Games.Add(newGame);
-
-
-        Lobby.RunGameListChangedEvent();
-    }
-    void Refresh()
-    {
-        InvokeAsync(StateHasChanged);
+        Game.Instance.Join(new Player(newPlayerName));
+        navManager.NavigateTo($"/play?playerName={newPlayerName}");
     }
 }

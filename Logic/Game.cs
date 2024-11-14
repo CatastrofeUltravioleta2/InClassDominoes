@@ -1,4 +1,4 @@
-﻿using System.Security.AccessControl;
+﻿namespace Lab12Logic;
 
 public class Game
 {
@@ -17,7 +17,7 @@ public class Game
                 return null;
             else
             {
-                return Player1.Tiles.Count < Player2.Tiles.Count ? Player1 : Player2;
+                return Player1.Tiles.Count <= Player2.Tiles.Count ? Player1 : Player2;
             }
         }
     }

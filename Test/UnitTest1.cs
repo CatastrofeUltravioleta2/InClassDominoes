@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 
 namespace Test;
+using Lab12Logic;
 
 public class UnitTest1
 {
@@ -86,6 +87,5 @@ public class UnitTest1
         game.Winner.Should().Be(player1);
         game.IsGameOver.Should().BeTrue();
     }
-
 
 }

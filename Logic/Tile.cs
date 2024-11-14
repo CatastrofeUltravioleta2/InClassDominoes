@@ -1,3 +1,4 @@
+namespace Lab12Logic;
 public class Tile : IEquatable<Tile?>
 {
 
