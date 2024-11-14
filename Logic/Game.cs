@@ -2,7 +2,6 @@
 
 public class Game
 {
-    public GameStatus Status { get; private set; }
     public string Name { get; set; }
     public int NumberOfPlayer { get; set; }
 
@@ -55,7 +54,6 @@ public class Game
     public Game()
     {
         Reset();
-        Status = GameStatus.Not_Started;
     }
 
     public void Reset()
@@ -78,8 +76,33 @@ public class Game
         }
         else
         {
-            throw new Exception();//GameFullException();
+            throw new GameFullException();
         }
         GameStateChanged?.Invoke();
     }
+     public void PlayTile(Player player, Tile tile)
+ {
+     if (player.Tiles.Contains(tile) == false)
+     {
+         throw new InvalidMoveException();
+     }
+
+     var numtomatch = Board.Last().Num2;
+
+     if (tile.Num1 == numtomatch)
+     {
+         Board.Add(tile);
+         player.Tiles.Remove(tile);
+     }
+     else if (tile.Num2 == numtomatch)
+     {
+         player.Tiles.Remove(tile);
+         Board.Add(new Tile(tile.Num2, tile.Num1));
+     }
+     else
+     { throw new InvalidMoveException(); 
+     }
+
+     GameStateChanged?.Invoke();
+ }   
 }
